@@ -44,6 +44,6 @@ resource "aws_iam_role_policy_attachment" "attach_policy" {
 }
 
 resource "aws_iam_instance_profile" "jenkins_instance_profile" {
-  name = "jenkins-ec2-instance-profile"
+  name = "jenkins-ec2-instance-profile" # Instance profile for Jenkins EC2 intentionally named to avoid confusion
   role = aws_iam_role.jenkins_ec2_s3_role.name
 }

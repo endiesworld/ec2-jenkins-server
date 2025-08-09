@@ -2,7 +2,6 @@
 
 This monorepo contains two Terraform projects to deploy a disposable Jenkins server on EC2 using Docker, while preserving Jenkins data in an S3 bucket.
 
-
 ---
 
 ## ✅ Prerequisites
@@ -62,6 +61,30 @@ jenkins-infra/
 
 ---
 
+## Assumptions
+The following assumptions simplify the setup. If your environment differs, adjust the noted variables.
+
+1. EC2 default user
+- Assumes Amazon Linux 2 → ec2-user.
+- If using Ubuntu, set ssh_user = "ubuntu" in Terraform or export SSH_USER=ubuntu before running the backup script.
+
+2. S3 bucket name
+- Assumes you provide the bucket via Terraform (-var="backup_bucket=...").
+- Object keys default to backups/jenkins-home-<timestamp>.tar.gz.
+- Override prefix by S3_PREFIX env var.
+
+3. AWS region consistency
+- Assumes EC2 and the S3 bucket are in the same region.
+- If not, set AWS_REGION when running the backup script and ensure the instance role allows cross‑region S3 access.
+
+4. Backup object integrity
+- Assumes S3 upload succeeds and the object is intact.
+- For strict integrity, enable checksums (e.g., upload .sha256) and verify during restore.
+
+5. Jenkins container name
+- Assumes the controller container is named jenkins.
+- If you renamed it, set CONTAINER_NAME in backup_jenkins.sh or export CONTAINER_NAME=<your-name>.
+
 ## 🚀 Step-by-Step Usage
 
 ### 1. Deploy S3 Bucket + IAM Role
@@ -69,6 +92,7 @@ jenkins-infra/
 ```bash
 cd jenkins-infra/terraform-s3-backup
 terraform init
+terraform plan
 terraform apply -var="bucket_name=jenkins-backup-bucket-<your-unique-name>"
 ```
 
@@ -78,10 +102,12 @@ terraform apply -var="bucket_name=jenkins-backup-bucket-<your-unique-name>"
 
 ### 2. Deploy Jenkins EC2 Instance
 
+Before running this, ensure that you have replaced the bucket name <jenkins-backup-bucket-project-emmanuel> with your project bucket name in both the user_data.sh and the backup_jenkins.sh files respectively.
+
 ```bash
 cd ../terraform-ec2-jenkins
 terraform init
-terraform apply -var="iam_instance_profile_name=jenkins-ec2-instance-profile"
+terraform apply 
 ```
 
 ***📌 Note:*** Jenkins will be available at:
