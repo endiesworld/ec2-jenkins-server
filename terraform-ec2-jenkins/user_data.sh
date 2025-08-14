@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+# Log everything for post-boot debugging
+exec > >(tee -a /var/log/user-data.log | logger -t user-data -s 2>/dev/console) 2>&1
+
 # -------- Vars injected by Terraform (recommended) --------
 S3_BUCKET="jenkins-backup-bucket-project-emmanuel"
 S3_PREFIX="backups"
@@ -38,13 +41,34 @@ else
   echo "No previous backup found. Starting with a fresh Jenkins home."
 fi
 
+# --- Ensure Jenkins URL matches this instance (overrides stale value from backup) ---
+PUBLIC_IP=$(curl -s --connect-timeout 2 http://169.254.169.254/latest/meta-data/public-ipv4 || true)
+PUBLIC_BASE_URL=""
+if [ -n "$PUBLIC_IP" ]; then
+  PUBLIC_BASE_URL="http://${PUBLIC_IP}:8080/"
+fi
+
+mkdir -p "${JENKINS_HOME}/init.groovy.d"
+cat >"${JENKINS_HOME}/init.groovy.d/00-set-url.groovy" <<'GROOVY'
+import jenkins.model.*
+def url = System.getenv("PUBLIC_BASE_URL")
+if (url && url.trim()) {
+  def jlc = JenkinsLocationConfiguration.get()
+  if (jlc.getUrl() != url) { jlc.setUrl(url); jlc.save() }
+}
+GROOVY
+chown -R 1000:1000 "${JENKINS_HOME}/init.groovy.d"
+
+
 # -------- Run Jenkins container --------
 # Port 50000 is only needed for inbound agents; feel free to remove if not used.
 docker run -d \
   --name "$CONTAINER_NAME" \
   -p 8080:8080 -p 50000:50000 \
   -v "$JENKINS_HOME:/var/jenkins_home" \
+  -e PUBLIC_BASE_URL="$PUBLIC_BASE_URL" \
   --restart unless-stopped \
   jenkins/jenkins:lts
+
 
 echo "Jenkins container started. UI should be on http://<public-ip>:8080"
