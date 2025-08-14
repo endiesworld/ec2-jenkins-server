@@ -1,0 +1,29 @@
+#!/bin/bash
+set -euo pipefail
+S3_BUCKET="${S3_BUCKET:-${backup_bucket}}"
+S3_PREFIX="${S3_PREFIX:-${backup_prefix}}"
+AWS_REGION="${AWS_REGION:-${region}}"
+CONTAINER_NAME="${CONTAINER_NAME:-${container_name}}"
+JENKINS_HOME="/var/jenkins_home"
+
+yum update -y
+yum install -y docker aws-cli
+systemctl enable --now docker
+
+if id ec2-user &>/dev/null; then
+  usermod -aG docker ec2-user || true
+fi
+
+mkdir -p "$JENKINS_HOME"
+
+LATEST_KEY="${S3_PREFIX}/jenkins-home-latest.tar.gz"
+if aws s3api head-object --bucket "$S3_BUCKET" --key "$LATEST_KEY" --region "$AWS_REGION" >/dev/null 2>&1; then
+  aws s3 cp "s3://$S3_BUCKET/$LATEST_KEY" - --region "$AWS_REGION" | tar -xz -C /
+  chown -R 1000:1000 "$JENKINS_HOME"
+fi
+
+docker run -d \
+  --name "$CONTAINER_NAME" \
+  -p 8080:8080 -p 50000:50000 \
+  -v "$JENKINS_HOME:/var/jenkins_home" \
+  jenkins/jenkins:lts

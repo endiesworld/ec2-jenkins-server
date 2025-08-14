@@ -38,3 +38,19 @@ variable "my_IP" {
   description = "Your IP address with CIDR notation"
   type        = string
 }
+
+variable "backup_bucket" {
+  description = "S3 bucket name for storing Jenkins data"
+  type        = string
+  
+}
+
+variable "backup_prefix" {
+  description = "Prefix for backups in the S3 bucket"
+  type        = string
+}
+
+variable "container_name" {
+  description = "Name of the Docker container for Jenkins"
+  type        = string
+}
