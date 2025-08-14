@@ -77,21 +77,11 @@ resource "aws_instance" "jenkins_server" {
     iam_instance_profile        = var.iam_instance_profile_name
 
     user_data = file("${path.module}/user_data.sh")
-    # user_data = templatefile("${path.module}/user_data.sh.tftpl", {
-    #     backup_bucket  = var.backup_bucket
-    #     backup_prefix  = var.backup_prefix
-    #     region         = var.region
-    #     container_name = var.container_name
-    # })
-
+  
     tags = {
         Name = "${var.env_prefix}-Jenkins-server"
     }
 
-    # provisioner "local-exec" {
-    #     when    = destroy
-    #     command = "S3_BUCKET=${var.backup_bucket} AWS_REGION=${var.region} bash backup_jenkins.sh ${self.public_ip}"
-    # }
 }
 
 resource "null_resource" "backup_trigger" {

@@ -44,19 +44,7 @@ ls -l ~/.ssh/id_rsa ~/.ssh/id_rsa.pub
 
 ## 📁 Project Structure
 
-jenkins-infra/
-├── terraform-s3-backup/ # S3 bucket + IAM role for Jenkins EC2 access
-│ ├── main.tf
-│ ├── iam.tf
-│ ├── variables.tf
-│ └── outputs.tf
-│
-└── terraform-ec2-jenkins/ # EC2 instance to run Dockerized Jenkins
-├── main.tf
-├── variables.tf
-├── outputs.tf
-├── user_data.sh # Installs Docker + restores Jenkins from S3
-└── backup_jenkins.sh # Backs up Jenkins data to S3 before destroy
+![Project directory structure](https://github.com/endiesworld/ec2-jenkins-server/images/project-structure.png)
 
 
 ---
@@ -102,7 +90,7 @@ terraform apply -var="bucket_name=jenkins-backup-bucket-<your-unique-name>"
 
 ### 2. Deploy Jenkins EC2 Instance
 
-Before running this, ensure that you have replaced the bucket name <jenkins-backup-bucket-project-emmanuel> with your project bucket name in the terraform.tfvars file.
+Before running this, ensure that you have replaced the bucket name <jenkins-backup-bucket-project-emmanuel> with your project bucket name in the terraform.tfvars and in the user_data.sh files.
 
 ```bash
 cd ../terraform-ec2-jenkins

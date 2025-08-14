@@ -5,7 +5,7 @@ set -euo pipefail
 exec > >(tee -a /var/log/user-data.log | logger -t user-data -s 2>/dev/console) 2>&1
 
 # -------- Vars injected by Terraform (recommended) --------
-S3_BUCKET="jenkins-backup-bucket-project-emmanuel"
+S3_BUCKET="jenkins-bucket-project-adaobi" # Replace with your S3 bucket name for Jenkins backups
 S3_PREFIX="backups"
 AWS_REGION="us-west-2"
 CONTAINER_NAME="jenkins"
