@@ -102,7 +102,7 @@ terraform apply -var="bucket_name=jenkins-backup-bucket-<your-unique-name>"
 
 ### 2. Deploy Jenkins EC2 Instance
 
-Before running this, ensure that you have replaced the bucket name <jenkins-backup-bucket-project-emmanuel> with your project bucket name in both the user_data.sh and the backup_jenkins.sh files respectively.
+Before running this, ensure that you have replaced the bucket name <jenkins-backup-bucket-project-emmanuel> with your project bucket name in the terraform.tfvars file.
 
 ```bash
 cd ../terraform-ec2-jenkins
