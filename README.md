@@ -44,7 +44,7 @@ ls -l ~/.ssh/id_rsa ~/.ssh/id_rsa.pub
 
 ## 📁 Project Structure
 
-![Project directory structure](#)![./images/project-structure.png](https://github.com/endiesworld/ec2-jenkins-server/images/project-structure.png)
+![Project directory structure](#) ![./images/project-structure.png](https://github.com/endiesworld/ec2-jenkins-server/images/project-structure.png)
 
 
 ---
